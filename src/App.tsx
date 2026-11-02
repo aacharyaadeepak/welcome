@@ -27,6 +27,38 @@ const services = [
       'Navgrah Puja (Pacifying the nine cosmic planetary forces)',
       'Satyanarayan Katha (For family harmony, gratitude & prosperity)',
     ],
+    pujas: [
+      'Ganesh Puja',
+      'Durga Puja',
+      'Vishnu Puja',
+      'Shiv Puja',
+      'Diwali Puja',
+      'Dhanteras Puja',
+      'Mahalaxmi Puja',
+      'Navratri Puja',
+      'Das Mahavidya Puja',
+      'Griha Parvesh Puja',
+      'Satyanarayan Katha',
+      'Asthi Visarjan Puja',
+      'Tripindi Shradh Puja',
+      'Pind Daan Puja',
+      'Namkaran Puja',
+      'Annaprashan Puja',
+      'Ganesh Chaturthi Puja',
+      'Navagraha Shanti Puja',
+      'Office Opening Puja',
+      'Rudrabhishek Puja',
+      'Marriage Puja',
+      'Narayan Bali Puja',
+      'Engagement Puja',
+      'Upanayan Sanskaar',
+      'Sundarkand Path',
+      'Akhand Ramayan Path',
+      'Birthday Puja',
+      'Santaan Gopal Path',
+      'Kaal Sarp Dosh Puja',
+      'Others',
+    ],
   },
   {
     name: 'Pitru Pujas (Ancestral)',
@@ -144,6 +176,12 @@ const ceremonies = [
   },
 ]
 
+type SearchResult =
+  | { kind: 'section'; title: string; category: string; searchText: string; sectionId: string }
+  | { kind: 'service'; title: string; category: string; searchText: string; service: (typeof services)[number] }
+  | { kind: 'ritual' | 'puja'; title: string; category: string; searchText: string; service: (typeof services)[number]; puja: string }
+  | { kind: 'ceremony'; title: string; category: string; searchText: string; ceremony: (typeof ceremonies)[number] }
+
 const galleryItems: GalleryItem[] = [
   {
     title: 'Sacred Rudrabhishek & Mahamrityunjaya Path',
@@ -251,24 +289,126 @@ function whatsappHref(message: string) {
   return `https://wa.me/919634195464?text=${encodeURIComponent(message)}`
 }
 
+function normalizeSearchText(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/poojas?/g, 'puja')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 function App() {
   const isGalleryPage =
     window.location.pathname.replace(/\/+$/, '') === `${basePath.replace(/\/+$/, '')}/gallery`
-  const [activeService, setActiveService] = useState(0)
+  const [selectedService, setSelectedService] = useState<(typeof services)[number] | null>(null)
+  const [selectedPuja, setSelectedPuja] = useState<string | null>(null)
   const [activeFilter, setActiveFilter] = useState('All')
   const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null)
   const [customImages, setCustomImages] = useState<GalleryItem[]>([])
   const [activeArticle, setActiveArticle] = useState<(typeof articles)[number] | null>(null)
   const [notice, setNotice] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+
+  const normalizedSearch = normalizeSearchText(searchTerm)
+  const filteredServices = normalizedSearch
+    ? services.filter((service) => {
+        const pujas = 'pujas' in service ? service.pujas ?? [] : []
+        return normalizeSearchText([service.name, service.hindi, service.description, service.detail, ...service.rituals, ...pujas].join(' ')).includes(normalizedSearch)
+      })
+    : services
+  const filteredCeremonies = normalizedSearch
+    ? ceremonies.filter((ceremony) => normalizeSearchText([ceremony.title, ceremony.type, ceremony.highlight, ceremony.summary, ceremony.details].join(' ')).includes(normalizedSearch))
+    : ceremonies
+
+  const searchResults: SearchResult[] = [
+    {
+      kind: 'section' as const,
+      title: 'OUR CORE OFFERINGS',
+      category: 'Browse all services',
+      searchText: 'our core offerings services pillars puja pooja rituals',
+      sectionId: 'services',
+    },
+    ...services.flatMap((service): SearchResult[] => {
+      const pujas = 'pujas' in service ? service.pujas ?? [] : []
+      return [
+        {
+          kind: 'service',
+          title: service.name,
+          category: 'Core offering',
+          searchText: [service.name, service.hindi, service.description, service.detail].join(' '),
+          service,
+        },
+        ...service.rituals.map((ritual) => ({
+          kind: 'ritual' as const,
+          title: ritual.split(' (')[0],
+          category: service.name,
+          searchText: [ritual, service.name, service.hindi].join(' '),
+          service,
+          puja: ritual,
+        })),
+        ...pujas.map((puja) => ({
+          kind: 'puja' as const,
+          title: puja,
+          category: service.name,
+          searchText: [puja, service.name, service.hindi].join(' '),
+          service,
+          puja,
+        })),
+      ]
+    }),
+    ...ceremonies.map((ceremony) => ({
+      kind: 'ceremony' as const,
+      title: ceremony.title,
+      category: ceremony.type,
+      searchText: [ceremony.title, ceremony.type, ceremony.highlight, ceremony.summary, ceremony.details].join(' '),
+      ceremony,
+    })),
+  ].filter((result) => !normalizedSearch || normalizeSearchText(result.searchText).includes(normalizedSearch))
 
   const visibleGallery =
     activeFilter === 'All'
       ? [...customImages, ...galleryItems]
       : [...customImages, ...galleryItems].filter((item) => item.category === activeFilter)
   const latestGallery = [...customImages, ...galleryItems].slice(0, 4)
-
   function sectionHref(section: string) {
     return isGalleryPage ? `${basePath}#${section}` : `#${section}`
+  }
+
+  function selectSearchResult(result: SearchResult) {
+    setIsSearchOpen(false)
+
+    if (result.kind === 'section') {
+      setSearchTerm('')
+      if (isGalleryPage) {
+        window.location.assign(sectionHref(result.sectionId))
+      } else {
+        document.getElementById(result.sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+      return
+    }
+
+    if (result.kind === 'ceremony') {
+      const ceremonyIndex = ceremonies.indexOf(result.ceremony)
+      setSearchTerm('')
+      if (isGalleryPage) {
+        window.location.assign(sectionHref('ceremonies'))
+      } else {
+        requestAnimationFrame(() => {
+          document.getElementById(`ceremony-${ceremonyIndex}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        })
+      }
+      return
+    }
+
+    setSelectedPuja(result.kind === 'ritual' || result.kind === 'puja' ? result.puja : null)
+    if (isGalleryPage) {
+      window.location.assign(sectionHref('services'))
+      return
+    }
+
+    setSelectedService(result.service)
+    document.getElementById('services')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   function renderGalleryCards(items: GalleryItem[]) {
@@ -332,7 +472,6 @@ function App() {
 
       <header className="site-header">
         <a href={sectionHref('home')} className="brand">
-          <span className="brand-seal">♧</span>
           <span><strong>Acharya Deepak</strong><small>ONLINE VEDIC & RITUALS • RISHIKESH</small></span>
         </a>
         <nav aria-label="Main navigation">
@@ -344,7 +483,60 @@ function App() {
           <a href={galleryHref} aria-current={isGalleryPage ? 'page' : undefined}>Sacred Gallery</a>
           <a href={sectionHref('blog')}>Blogs</a>
         </nav>
-        <a href={sectionHref('booking')} className="button button-primary header-book">Book Ritual / Consultation</a>
+        <div className="header-tools">
+          <button type="button" className="search-toggle" onClick={() => setIsSearchOpen((open) => !open)} aria-expanded={isSearchOpen} aria-label="Search rituals and poojas">
+            ⌕ Search
+          </button>
+          {isSearchOpen && (
+            <div className="search-widget">
+              <label className="header-search">
+                <span aria-hidden="true">⌕</span>
+                <input
+                  type="search"
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  placeholder="Search offerings or puja"
+                  aria-label="Search offerings and pujas"
+                  aria-controls="ritual-search-results"
+                  aria-expanded={isSearchOpen}
+                  autoFocus
+                  onKeyDown={(event) => {
+                    if (event.key === 'Escape') {
+                      setIsSearchOpen(false)
+                    } else if (event.key === 'Enter' && searchResults[0]) {
+                      event.preventDefault()
+                      selectSearchResult(searchResults[0])
+                    }
+                  }}
+                />
+                {searchTerm && <button type="button" onClick={() => setSearchTerm('')} aria-label="Clear search">×</button>}
+              </label>
+              <div className="search-results" id="ritual-search-results" role="listbox" aria-label="Search results">
+                  <p className="search-results-heading">
+                    {normalizedSearch ? `${searchResults.length} matching offerings and pujas` : 'OUR CORE OFFERINGS & PUJAS'}
+                  </p>
+                  {searchResults.length ? (
+                    searchResults.map((result) => (
+                      <button
+                        type="button"
+                        role="option"
+                        aria-selected="false"
+                        className="search-result"
+                        key={`${result.kind}-${result.title}-${result.category}`}
+                        onClick={() => selectSearchResult(result)}
+                      >
+                        <span>{result.title}</span>
+                        <small>{result.category}</small>
+                      </button>
+                    ))
+                  ) : (
+                    <p className="search-no-results">No matching offerings or pujas. Try a different keyword.</p>
+                  )}
+              </div>
+            </div>
+          )}
+          <a href={sectionHref('booking')} className="button button-primary header-book">Book Ritual</a>
+        </div>
       </header>
 
       {isGalleryPage ? (
@@ -424,18 +616,21 @@ function App() {
           <div className="content-width">
             <div className="center-heading"><span className="pill section-pill">OUR CORE OFFERINGS</span><h2>Four Pillars of Vedic & Spiritual<br />Services</h2><p>We perform all religious ceremonies with pure Vedic mantras and complete authenticity directly from<br /> holy Rishikesh.</p></div>
             <div className="pillar-grid">
-              {services.map((service, index) => <button type="button" key={service.name} onClick={() => setActiveService(index)} className={`pillar-card ${activeService === index ? 'selected' : ''}`}><div className="pillar-top"><span>Pillar 0{index + 1}</span><small>{service.hindi}</small></div><h3>{service.name}</h3><p>{service.description}</p><div className="pillar-link">Explore Details <span>›</span></div></button>)}
+              {filteredServices.map((service, index) => <button type="button" key={service.name} onClick={() => { setSelectedPuja(null); setSelectedService(service) }} className="pillar-card"><div className="pillar-top"><span>Pillar 0{index + 1}</span><small>{service.hindi}</small></div><h3>{service.name}</h3><p>{service.description}</p><div className="pillar-link">Explore Details <span>›</span></div></button>)}
             </div>
-            <div className="service-detail">
-              <div className={`detail-image detail-image-${activeService}`}><span>Live Streamed from Rishikesh</span><strong>{services[activeService].name}</strong><small>{services[activeService].hindi}</small></div>
-              <div className="detail-copy"><span className="eyebrow">DETAILED SERVICE BREAKDOWN</span><p>{services[activeService].detail}</p><div className="ritual-list">{services[activeService].rituals.map((ritual) => <div key={ritual}>✧ &nbsp;{ritual}</div>)}</div><div className="detail-bottom"><span>Conducted with <strong>Live Streaming & Individualized Sankalp</strong></span><a href="#booking" className="button button-primary">Book {services[activeService].name.split(' (')[0]} &nbsp; →</a></div></div>
-            </div>
+            {filteredServices.length === 0 && (
+              <div className="search-empty-state">No pujas or rituals match “{searchTerm}”. Try a different keyword like Rudrabhishek, Pind Daan, Vastu, or Kundli.</div>
+            )}
           </div>
         </section>
 
         <section id="ceremonies" className="content-width section-space ceremonies-section">
           <div className="section-title-row"><div><span className="pill section-pill">SACRED CEREMONIES WE PROVIDE</span><h2>8 Signature Vedic Pujas & Sanskars</h2><p>Each ritual is performed with pure Vedic mantras, traditional विधि-विधान, and complete<br /> devotion for peace, protection, and family prosperity.</p></div><a href="#booking" className="button button-outline">Need a Custom Havan or Puja? Enquire Here →</a></div>
-          <div className="ceremony-grid">{ceremonies.map((ceremony, index) => <article key={ceremony.title} className="ceremony-card"><div className="ceremony-photo" style={{ backgroundImage: `linear-gradient(0deg, rgba(61, 25, 20, .96), transparent 62%), url("${ceremony.image}")` }}><span className="ceremony-type">#{String(index + 1).padStart(2, '0')} • {ceremony.type}</span><span className="ceremony-highlight">✧ &nbsp;{ceremony.highlight}</span></div><div className="ceremony-copy"><h3>{ceremony.title}</h3><strong>{ceremony.summary}</strong><p>{ceremony.details}</p><a href={whatsappHref(`Namaste, I would like to enquire about ${ceremony.title}. Please share details about the puja, available dates, and booking process.`)} target="_blank" rel="noreferrer">Enquire on WhatsApp &nbsp; →</a></div></article>)}</div>
+          {filteredCeremonies.length === 0 ? (
+            <div className="search-empty-state">No ceremonies match your search. Try a more specific ritual title like Rudrabhishek, Pind Daan, or Vivah Sanskar.</div>
+          ) : (
+            <div className="ceremony-grid">{filteredCeremonies.map((ceremony, index) => <article id={`ceremony-${ceremonies.indexOf(ceremony)}`} key={ceremony.title} className="ceremony-card"><div className="ceremony-photo" style={{ backgroundImage: `linear-gradient(0deg, rgba(61, 25, 20, .96), transparent 62%), url("${ceremony.image}")` }}><span className="ceremony-type">#{String(index + 1).padStart(2, '0')} • {ceremony.type}</span><span className="ceremony-highlight">✧ &nbsp;{ceremony.highlight}</span></div><div className="ceremony-copy"><h3>{ceremony.title}</h3><strong>{ceremony.summary}</strong><p>{ceremony.details}</p><a href={whatsappHref(`Namaste, I would like to enquire about ${ceremony.title}. Please share details about the puja, available dates, and booking process.`)} target="_blank" rel="noreferrer">Enquire on WhatsApp &nbsp; →</a></div></article>)}</div>
+          )}
         </section>
 
         <section id="pitru" className="pitru-section">
@@ -452,9 +647,10 @@ function App() {
       </main>
       )}
 
-      <footer className="site-footer"><div className="footer-main content-width"><div className="footer-brand"><a href={sectionHref('home')} className="brand"><span className="brand-seal">♧</span><span><strong>Acharya Deepak Online Vedic & Rituals Rishikesh</strong></span></a><p>Your trusted destination for traditional Hindu rituals, ancestral peace (Pind Daan, Tarpan, Shraddh), Deity Pujas, and Janam Kundli guidance directly from holy Rishikesh with live streaming and individualized Sankalp.</p></div><div><h4>SACRED PUJAS</h4><a href={sectionHref('ceremonies')}>1. Wedding Ceremony (Vivah Sanskar)</a><a href={sectionHref('ceremonies')}>2. Griha Pravesh & Vastu Puja</a><a href={sectionHref('ceremonies')}>3. Rudrabhishek (Mahamrityunjaya Path)</a><a href={sectionHref('ceremonies')}>4. Satyanarayan Katha & Navagraha Puja</a><a href={sectionHref('ceremonies')}>5. Mundan Sanskaar & Pind Daan Puja</a></div><div><h4>QUICK NAVIGATION</h4><a href={sectionHref('about')}>About Acharya Deepak (8+ Yrs Exp)</a><a href={sectionHref('services')}>4 Core Spiritual Pillars</a><a href={galleryHref}>Sacred Ritual Gallery</a><a href={sectionHref('blog')}>Spiritual Blog & Guides</a><a href={sectionHref('booking')}>Book Online Live Sankalp</a></div></div><div className="footer-bottom content-width"><span>© 2026 Acharya Deepak Online Vedic & Rituals Rishikesh. All Rights Reserved.</span><span>ॐ सर्वे भवन्तु सुखिनः</span></div></footer>
+      <footer className="site-footer"><div className="footer-main content-width"><div className="footer-brand"><a href={sectionHref('home')} className="brand"><span><strong>Acharya Deepak Online Vedic & Rituals Rishikesh</strong></span></a><p>Your trusted destination for traditional Hindu rituals, ancestral peace (Pind Daan, Tarpan, Shraddh), Deity Pujas, and Janam Kundli guidance directly from holy Rishikesh with live streaming and individualized Sankalp.</p></div><div><h4>SACRED PUJAS</h4><a href={sectionHref('ceremonies')}>1. Wedding Ceremony (Vivah Sanskar)</a><a href={sectionHref('ceremonies')}>2. Griha Pravesh & Vastu Puja</a><a href={sectionHref('ceremonies')}>3. Rudrabhishek (Mahamrityunjaya Path)</a><a href={sectionHref('ceremonies')}>4. Satyanarayan Katha & Navagraha Puja</a><a href={sectionHref('ceremonies')}>5. Mundan Sanskaar & Pind Daan Puja</a></div><div><h4>QUICK NAVIGATION</h4><a href={sectionHref('about')}>About Acharya Deepak (8+ Yrs Exp)</a><a href={sectionHref('services')}>4 Core Spiritual Pillars</a><a href={galleryHref}>Sacred Ritual Gallery</a><a href={sectionHref('blog')}>Spiritual Blog & Guides</a><a href={sectionHref('booking')}>Book Online Live Sankalp</a></div></div><div className="footer-bottom content-width"><span>© 2026 Acharya Deepak Online Vedic & Rituals Rishikesh. All Rights Reserved.</span><span>ॐ सर्वे भवन्तु सुखिनः</span></div></footer>
 
       {selectedImage && <div className="modal-backdrop" role="presentation" onClick={() => setSelectedImage(null)}><div className="lightbox" role="dialog" aria-modal="true" aria-label={selectedImage.title} onClick={(event) => event.stopPropagation()}><button type="button" className="modal-close" onClick={() => setSelectedImage(null)} aria-label="Close image">×</button><img src={selectedImage.image} alt={selectedImage.title} /><div><span>{selectedImage.category}</span><h2>{selectedImage.title}</h2><p>{selectedImage.description}</p></div></div></div>}
+      {selectedService && <div className="modal-backdrop" role="presentation" onClick={() => { setSelectedService(null); setSelectedPuja(null) }}><article className="service-modal" role="dialog" aria-modal="true" aria-label={selectedService.name} onClick={(event) => event.stopPropagation()}><button type="button" className="modal-close" onClick={() => { setSelectedService(null); setSelectedPuja(null) }} aria-label="Close service details">×</button><div className="service-modal-content"><span className="eyebrow">{selectedService.hindi}</span><h2>{selectedService.name}</h2><p>{selectedService.detail}</p>{selectedPuja && <p className="selected-puja-label">Showing results for: <strong>{selectedPuja}</strong></p>}{selectedService.pujas ? <ol className="service-puja-list">{selectedService.pujas.map((puja, index) => <li key={puja} className={selectedPuja === puja ? 'active-search-puja' : undefined}>{index + 1}. {puja}</li>)}</ol> : <div className="ritual-list">{selectedService.rituals.map((ritual) => <div key={ritual} className={selectedPuja === ritual ? 'active-search-puja' : undefined}>✧ &nbsp;{ritual}</div>)}</div>}<a href={sectionHref('booking')} className="button button-primary" onClick={() => { setSelectedService(null); setSelectedPuja(null) }}>Book {selectedService.name.split(' (')[0]} →</a></div></article></div>}
       {activeArticle && <div className="modal-backdrop" role="presentation" onClick={() => setActiveArticle(null)}><article className="article-modal" role="dialog" aria-modal="true" aria-label={activeArticle.title} onClick={(event) => event.stopPropagation()}><button type="button" className="modal-close" onClick={() => setActiveArticle(null)} aria-label="Close article">×</button><span className="eyebrow">{activeArticle.category} • {activeArticle.minutes}</span><h2>{activeArticle.title}</h2><p>{activeArticle.body}</p><a href={sectionHref('booking')} className="button button-primary" onClick={() => setActiveArticle(null)}>{activeArticle.booking} →</a></article></div>}
     </>
   )

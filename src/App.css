@@ -64,6 +64,130 @@
   z-index: 2;
 }
 
+.header-tools {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.search-widget {
+  position: relative;
+}
+
+.search-toggle {
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid #ead29c;
+  border-radius: 999px;
+  background: #fffdf8;
+  color: var(--maroon);
+  font: 700 12px 'Plus Jakarta Sans', sans-serif;
+  cursor: pointer;
+}
+
+.header-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid #e9d4a0;
+  border-radius: 999px;
+  background: #fffdf8;
+}
+
+.header-search > button {
+  padding: 0;
+  border: 0;
+  color: #76544b;
+  background: transparent;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.header-search span {
+  color: var(--saffron);
+  font-size: 16px;
+}
+
+.header-search input {
+  width: 170px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--maroon);
+  font: 500 12px 'Plus Jakarta Sans', sans-serif;
+}
+
+.header-search input::placeholder {
+  color: #8d6d61;
+}
+
+.search-results {
+  width: min(360px, calc(100vw - 32px));
+  max-height: min(60vh, 420px);
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 8px);
+  right: 0;
+  overflow-y: auto;
+  padding: 6px;
+  border: 1px solid #e9d4a0;
+  border-radius: 14px;
+  background: #fffdf8;
+  box-shadow: 0 12px 30px #34130f26;
+}
+
+.search-results-heading {
+  margin: 0;
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid #f0dfbd;
+  color: #76544b;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.search-result {
+  width: 100%;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border: 0;
+  border-radius: 9px;
+  color: var(--maroon);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.search-result:hover,
+.search-result:focus-visible {
+  outline: none;
+  background: #f7eee4;
+}
+
+.search-result > span {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.search-result > small {
+  color: #76544b;
+  font-size: 10px;
+}
+
+.search-no-results {
+  margin: 0;
+  padding: 14px 12px;
+  color: #68483f;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
@@ -71,19 +195,6 @@
   color: var(--maroon);
   text-decoration: none;
   flex: 0 0 auto;
-}
-
-.brand-seal {
-  width: 48px;
-  height: 48px;
-  border: 2px solid var(--saffron);
-  border-radius: 50%;
-  color: var(--saffron);
-  display: grid;
-  place-items: center;
-  font-family: Georgia, serif;
-  font-size: 27px;
-  box-shadow: 0 3px 7px #4a1c1720;
 }
 
 .brand strong {
@@ -714,13 +825,6 @@
   transform: translateY(-3px);
 }
 
-.pillar-card.selected {
-  color: white;
-  background: var(--maroon);
-  border-color: var(--gold);
-  box-shadow: 0 12px 22px #4a1c171a;
-}
-
 .pillar-top {
   display: flex;
   justify-content: space-between;
@@ -736,11 +840,6 @@
   font-size: 10px;
   font-weight: 700;
   white-space: nowrap;
-}
-
-.selected .pillar-top > span {
-  color: white;
-  background: var(--saffron);
 }
 
 .pillar-top small {
@@ -760,10 +859,6 @@
   line-height: 1.55;
 }
 
-.pillar-card.selected p {
-  color: #f4ddd3;
-}
-
 .pillar-link {
   margin-top: 14px;
   padding-top: 12px;
@@ -775,80 +870,10 @@
   font-weight: 700;
 }
 
-.selected .pillar-link {
-  border-color: #c59b2759;
-  color: var(--gold);
-}
-
 .pillar-link span {
   color: var(--maroon);
   font-size: 20px;
   line-height: 12px;
-}
-
-.selected .pillar-link span {
-  color: white;
-}
-
-.service-detail {
-  margin-top: 38px;
-  min-height: 440px;
-  display: grid;
-  grid-template-columns: 0.72fr 1fr;
-  overflow: hidden;
-  background: white;
-  border: 2px solid #e9cf91;
-  border-radius: 24px;
-  box-shadow: 0 12px 25px #4a1c1712;
-}
-
-.detail-image {
-  min-height: 440px;
-  padding: 25px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  color: white;
-  background:
-    linear-gradient(0deg, #4a1c17 0%, transparent 74%),
-    radial-gradient(circle at 52% 35%, #e4aa48 0 10%, transparent 11%),
-    linear-gradient(140deg, #7b9eb5, #394c6d 55%, #3e2527);
-}
-
-.detail-image-1 {
-  background: linear-gradient(0deg, #4a1c17 0%, transparent 72%), radial-gradient(ellipse at 40% 50%, #64b7aa, #315e61 38%, #1c3138 70%);
-}
-
-.detail-image-2 {
-  background: linear-gradient(0deg, #4a1c17 0%, transparent 72%), radial-gradient(circle at 50% 35%, #f5cf7a 0 7%, transparent 8%), linear-gradient(135deg, #493d69, #738ab0 50%, #e3ac73);
-}
-
-.detail-image-3 {
-  background: linear-gradient(0deg, #4a1c17 0%, transparent 72%), radial-gradient(circle at 50% 40%, #dd9d48 0 9%, transparent 10%), linear-gradient(140deg, #7092a1, #334c65 55%, #d18b51);
-}
-
-.detail-image > span {
-  width: fit-content;
-  padding: 6px 12px;
-  margin-bottom: 12px;
-  border-radius: 99px;
-  background: var(--saffron);
-  color: white;
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.detail-image > strong {
-  font: 600 29px 'Cormorant Garamond', Georgia, serif;
-}
-
-.detail-image > small {
-  color: var(--gold);
-  font-size: 12px;
-}
-
-.detail-copy {
-  padding: 38px 40px 25px;
 }
 
 .eyebrow {
@@ -856,13 +881,6 @@
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
-}
-
-.detail-copy > p {
-  margin: 17px 0 22px;
-  color: #68483f;
-  font-size: 14px;
-  line-height: 1.75;
 }
 
 .ritual-list {
@@ -886,27 +904,6 @@
 
 .ritual-list div:first-letter {
   color: var(--saffron);
-}
-
-.detail-bottom {
-  margin-top: 23px;
-  padding-top: 16px;
-  border-top: 1px solid #ead29c;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  color: #76564d;
-  font-size: 11px;
-}
-
-.detail-bottom strong {
-  color: var(--maroon);
-}
-
-.detail-bottom .button {
-  min-height: 46px;
-  white-space: nowrap;
 }
 
 .ceremonies-section {
@@ -937,6 +934,17 @@
 .section-title-row > .button {
   margin-bottom: 8px;
   white-space: nowrap;
+}
+
+.search-empty-state {
+  margin-top: 22px;
+  padding: 20px 24px;
+  border: 1px solid #ead29c;
+  border-radius: 16px;
+  background: #fffdf8;
+  color: #68483f;
+  font-size: 13px;
+  line-height: 1.7;
 }
 
 .ceremony-grid {
@@ -1679,15 +1687,6 @@
   font-size: 22px;
 }
 
-.footer-brand .brand-seal {
-  flex: 0 0 42px;
-  width: 42px;
-  height: 42px;
-  color: white;
-  background: var(--saffron);
-  border: 0;
-}
-
 .footer-brand p {
   max-width: 480px;
   margin-top: 16px;
@@ -1735,7 +1734,8 @@
 }
 
 .lightbox,
-.article-modal {
+.article-modal,
+.service-modal {
   width: min(900px, 100%);
   max-height: min(90vh, 900px);
   position: relative;
@@ -1798,12 +1798,61 @@
   padding: 44px;
 }
 
+.service-modal {
+  width: min(760px, 100%);
+}
+
+.service-modal-content {
+  padding: 44px;
+}
+
+.service-modal h2 {
+  margin: 14px 0;
+  font-size: 40px;
+}
+
+.service-puja-list {
+  margin: 22px 0 24px;
+  padding-left: 20px;
+  color: var(--maroon);
+  font-size: 13px;
+  line-height: 1.8;
+  column-count: 2;
+  column-gap: 28px;
+}
+
+.service-puja-list li {
+  break-inside: avoid;
+  margin-bottom: 4px;
+  border-radius: 8px;
+  padding: 2px 6px;
+}
+
+.selected-puja-label {
+  padding: 10px 12px;
+  border-left: 3px solid var(--saffron);
+  background: #f7eee4;
+}
+
+.selected-puja-label strong {
+  color: var(--maroon);
+}
+
+.service-puja-list li.active-search-puja,
+.ritual-list .active-search-puja {
+  border: 1px solid var(--gold);
+  background: #f8e9d4;
+  color: var(--maroon);
+  font-weight: 700;
+}
+
 .article-modal h2 {
   margin: 14px 0;
   font-size: 40px;
 }
 
-.article-modal .button {
+.article-modal .button,
+.service-modal .button {
   margin-top: 24px;
 }
 
@@ -1852,8 +1901,14 @@
     flex-wrap: wrap;
   }
 
-  .site-header nav {
+  .header-tools {
     order: 3;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .site-header nav {
+    order: 4;
     width: 100%;
     justify-content: flex-start;
     overflow-x: auto;
@@ -1865,7 +1920,7 @@
   }
 
   .header-book {
-    margin-left: auto;
+    margin-left: 0;
     min-height: 48px;
   }
 
@@ -1940,6 +1995,10 @@
 }
 
 @media (max-width: 640px) {
+  .service-puja-list {
+    column-count: 1;
+  }
+
   .content-width {
     width: calc(100% - 32px);
   }
@@ -1955,18 +2014,36 @@
     padding: 12px 16px;
   }
 
-  .brand-seal {
-    width: 40px;
-    height: 40px;
-    font-size: 23px;
-  }
-
   .brand strong {
     font-size: 20px;
   }
 
   .brand small {
     font-size: 8px;
+  }
+
+  .header-tools {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .search-toggle {
+    order: 0;
+  }
+
+  .search-widget {
+    order: 1;
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .header-search {
+    flex: 1;
+  }
+
+  .header-search input {
+    width: 100%;
   }
 
   .header-book {
@@ -2129,30 +2206,8 @@
     min-height: 200px;
   }
 
-  .service-detail {
-    grid-template-columns: 1fr;
-  }
-
-  .detail-image {
-    min-height: 300px;
-  }
-
-  .detail-copy {
-    padding: 25px 20px;
-  }
-
   .ritual-list {
     grid-template-columns: 1fr;
-  }
-
-  .detail-bottom {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .detail-bottom .button {
-    width: 100%;
-    white-space: normal;
   }
 
   .section-title-row {

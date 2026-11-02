@@ -28,10 +28,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build site
-        run: |
-          npm run build
-          mkdir -p dist/gallery
-          cp dist/index.html dist/gallery/index.html
+        run: npm run build
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
       - name: Upload site artifact
