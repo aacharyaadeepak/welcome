@@ -15,5 +15,5 @@ export default defineConfig({
       },
     },
   ],
-  base: '/aacharyadeepak',
+  base: '/welcome',
 })
