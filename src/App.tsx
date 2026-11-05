@@ -191,13 +191,6 @@ const galleryItems: GalleryItem[] = [
     description: 'Panchamrit & Ganga Jal Abhishek of Shiva Lingam with Vedic Rudri chanting for peace and protection.',
   },
   {
-    title: 'Pind Daan & Tarpan by Holy Maa Ganga',
-    category: 'Pind Daan & Ganga Rituals',
-    place: 'Ganga Ghat, Rishikesh',
-    image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1000&q=85',
-    description: 'Sacred ancestral peace offerings guiding departed souls toward eternal peace.',
-  },
-  {
     title: 'Vedic Vivah Sanskar — Kanyadaan & Saptapadi',
     category: 'Weddings & Sanskars',
     place: 'Rishikesh Vedic Mandap',
@@ -220,17 +213,17 @@ const galleryItems: GalleryItem[] = [
   },
   {
     title: 'Evening Ganga Aarti & Deepdaan Blessings',
-    category: 'Pind Daan & Ganga Rituals',
+    category: 'Ganga Rituals',
     place: 'Holy Banks of Rishikesh',
     image: 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1000&q=85',
-    description: 'Offering sacred ghee lamps to Maa Ganga at dusk following Pitru Shanti and Sankalp rituals.',
+    description: 'Offering sacred ghee lamps to Maa Ganga at dusk during the evening aarti in Rishikesh.',
   },
 ]
 
 const galleryFilters = [
   'All',
   'Deity Pujas & Rudrabhishek',
-  'Pind Daan & Ganga Rituals',
+  'Ganga Rituals',
   'Weddings & Sanskars',
   'Online Live Sankalp',
 ]
@@ -239,7 +232,7 @@ const articles = [
   {
     category: 'PITRU PUJA & ANCESTRAL PEACE',
     title: 'The Sacred Bridge of Pind Daan: Connecting with Ancestors in Holy Rishikesh',
-    image: galleryItems[1].image,
+    image: galleryItems[4].image,
     minutes: '5 min read',
     text: '“Pind Daan is not just a ritual; it is a sacred bridge of gratitude, love, and prayers that connects us to our ancestors and guides their souls toward eternal peace.”',
     body: 'In the Vedic tradition, Pind Daan and Tarpan are profound acts of remembrance and gratitude. Families come to the holy banks of Maa Ganga in Rishikesh to offer prayers for their ancestors. The ceremony begins with a personalized Sankalp, followed by traditional offerings and mantras performed with care. Families joining online can take part through a live stream and share their names, Gotra, and prayers in advance.',
