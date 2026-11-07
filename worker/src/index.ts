@@ -1,8 +1,11 @@
+import { connect } from 'cloudflare:sockets'
+
 interface Env {
   ALLOWED_ORIGIN: string
-  GMAIL_CLIENT_ID: string
-  GMAIL_CLIENT_SECRET: string
-  GMAIL_REFRESH_TOKEN: string
+  SMTP_USER: string
+  SMTP_PASSWORD: string
+  SMTP_HOST?: string
+  SMTP_PORT?: string
 }
 
 interface BookingRequest {
@@ -17,7 +20,18 @@ interface BookingRequest {
   message: string
 }
 
-const senderAddress = 'aacharyaadeepak@gmail.com'
+interface Socket {
+  readable: ReadableStream<Uint8Array>
+  writable: WritableStream<Uint8Array>
+  startTls(): Socket
+  close(): Promise<void>
+}
+
+interface SmtpAddress {
+  hostname: string
+  port: number
+}
+
 const recipientAddress = 'aacharyaadeepak@gmail.com'
 const ccAddress = 'uniyaldeepak831@gmail.com'
 const senderName = 'Deepak Uniyal (Aacharya Deepak)'
@@ -106,38 +120,6 @@ function base64Utf8(value: string): string {
   return btoa(binary)
 }
 
-function base64UrlUtf8(value: string): string {
-  return base64Utf8(value)
-    .replaceAll('+', '-')
-    .replaceAll('/', '_')
-    .replace(/=+$/, '')
-}
-
-async function getGmailAccessToken(env: Env): Promise<string> {
-  const response = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id: env.GMAIL_CLIENT_ID,
-      client_secret: env.GMAIL_CLIENT_SECRET,
-      refresh_token: env.GMAIL_REFRESH_TOKEN,
-      grant_type: 'refresh_token',
-    }),
-  })
-  const result: unknown = await response.json().catch(() => null)
-
-  if (
-    !response.ok ||
-    !isRecord(result) ||
-    typeof result.access_token !== 'string'
-  ) {
-    console.error(`Google OAuth token request failed with status ${response.status}.`)
-    throw new Error('Email delivery is temporarily unavailable.')
-  }
-
-  return result.access_token
-}
-
 function formatBookingMessage(booking: BookingRequest): string {
   return [
     'A new booking request was submitted.',
@@ -160,10 +142,13 @@ function wrapBase64(value: string): string {
   return value.match(/.{1,76}/g)?.join('\r\n') ?? ''
 }
 
-function createRawEmail(booking: BookingRequest): string {
+function createEmailMessage(
+  booking: BookingRequest,
+  senderAddress: string,
+): string {
   const subject = base64Utf8(`Booking request from ${booking.name}`)
   const body = wrapBase64(base64Utf8(formatBookingMessage(booking)))
-  const mimeMessage = [
+  return [
     `From: ${senderName} <${senderAddress}>`,
     `To: ${recipientAddress}`,
     `Cc: ${ccAddress}`,
@@ -175,30 +160,115 @@ function createRawEmail(booking: BookingRequest): string {
     '',
     body,
   ].join('\r\n')
+}
 
-  return base64UrlUtf8(mimeMessage)
+function encodeSmtpData(value: string): Uint8Array {
+  const stuffed = value.replace(/(^|\r\n)\./gu, '$1..')
+  return new TextEncoder().encode(`${stuffed}\r\n.\r\n`)
+}
+
+class SmtpClient {
+  private reader: ReadableStreamDefaultReader<Uint8Array>
+  private writer: WritableStreamDefaultWriter<Uint8Array>
+  private buffer = ''
+
+  constructor(private socket: Socket) {
+    this.reader = socket.readable.getReader()
+    this.writer = socket.writable.getWriter()
+  }
+
+  async readResponse(expectedCodes: number[]): Promise<void> {
+    const lines: string[] = []
+    let complete = false
+
+    while (!complete) {
+      const line = await this.readLine()
+      lines.push(line)
+      complete = /^\d{3} /u.test(line)
+    }
+
+    const statusCode = Number(lines[lines.length - 1].slice(0, 3))
+    if (!expectedCodes.includes(statusCode)) {
+      throw new Error(`SMTP server returned status ${statusCode}.`)
+    }
+  }
+
+  async command(command: string, expectedCodes: number[]): Promise<void> {
+    await this.writer.write(new TextEncoder().encode(`${command}\r\n`))
+    await this.readResponse(expectedCodes)
+  }
+
+  async sendData(message: string): Promise<void> {
+    await this.writer.write(encodeSmtpData(message))
+    await this.readResponse([250])
+  }
+
+  async upgradeToTls(): Promise<void> {
+    this.reader.releaseLock()
+    this.writer.releaseLock()
+    this.socket = this.socket.startTls()
+    this.reader = this.socket.readable.getReader()
+    this.writer = this.socket.writable.getWriter()
+    this.buffer = ''
+  }
+
+  async close(): Promise<void> {
+    this.reader.releaseLock()
+    this.writer.releaseLock()
+    await this.socket.close()
+  }
+
+  private async readLine(): Promise<string> {
+    while (true) {
+      const lineEnd = this.buffer.indexOf('\r\n')
+      if (lineEnd !== -1) {
+        const line = this.buffer.slice(0, lineEnd)
+        this.buffer = this.buffer.slice(lineEnd + 2)
+        return line
+      }
+
+      const { value, done } = await this.reader.read()
+      if (done) {
+        throw new Error('SMTP server closed the connection unexpectedly.')
+      }
+      this.buffer += new TextDecoder().decode(value)
+    }
+  }
 }
 
 async function sendBookingEmail(
   env: Env,
   booking: BookingRequest,
 ): Promise<void> {
-  const accessToken = await getGmailAccessToken(env)
-  const response = await fetch(
-    'https://gmail.googleapis.com/gmail/v1/users/me/messages/send',
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ raw: createRawEmail(booking) }),
-    },
-  )
+  const hostname = env.SMTP_HOST || 'smtp.gmail.com'
+  const port = Number(env.SMTP_PORT || '587')
+  if (!Number.isInteger(port) || port < 1 || port > 65_535) {
+    throw new Error('SMTP port configuration is invalid.')
+  }
 
-  if (!response.ok) {
-    console.error(`Gmail send request failed with status ${response.status}.`)
-    throw new Error('Email delivery is temporarily unavailable.')
+  const socket = connect(
+    { hostname, port } satisfies SmtpAddress,
+    { secureTransport: 'starttls' },
+  ) as Socket
+  const client = new SmtpClient(socket)
+
+  try {
+    await client.readResponse([220])
+    await client.command('EHLO welcome-booking-email', [250])
+    await client.command('STARTTLS', [220])
+    await client.upgradeToTls()
+    await client.command('EHLO welcome-booking-email', [250])
+    await client.command('AUTH LOGIN', [334])
+    await client.command(base64Utf8(env.SMTP_USER), [334])
+    await client.command(base64Utf8(env.SMTP_PASSWORD), [235])
+    await client.command(`MAIL FROM:<${env.SMTP_USER}>`, [250])
+    await client.command(`RCPT TO:<${recipientAddress}>`, [250, 251])
+    await client.command(`RCPT TO:<${ccAddress}>`, [250, 251])
+    await client.command('DATA', [354])
+    await client.sendData(createEmailMessage(booking, env.SMTP_USER))
+    await client.command('QUIT', [221])
+  } finally {
+    await client.close()
   }
 }
 
@@ -208,12 +278,11 @@ export default {
       return jsonResponse(env, { error: 'Email API is not configured.' }, 500)
     }
 
-    if (
-      !env.GMAIL_CLIENT_ID ||
-      !env.GMAIL_CLIENT_SECRET ||
-      !env.GMAIL_REFRESH_TOKEN
-    ) {
-      return jsonResponse(env, { error: 'Email API credentials are not configured.' }, 503)
+    if (!env.SMTP_USER || !env.SMTP_PASSWORD) {
+      return jsonResponse(env, { error: 'SMTP credentials are not configured.' }, 503)
+    }
+    if (!/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/u.test(env.SMTP_USER)) {
+      return jsonResponse(env, { error: 'SMTP sender address is invalid.' }, 500)
     }
 
     if (request.headers.get('Origin') !== env.ALLOWED_ORIGIN) {

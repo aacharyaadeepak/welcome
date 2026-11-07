@@ -5,6 +5,8 @@
   "compatibility_date": "2026-11-07",
   "workers_dev": true,
   "vars": {
-    "ALLOWED_ORIGIN": "https://aacharyaadeepak.github.io"
+    "ALLOWED_ORIGIN": "https://aacharyaadeepak.github.io",
+    "SMTP_HOST": "smtp.gmail.com",
+    "SMTP_PORT": "587"
   }
 }
