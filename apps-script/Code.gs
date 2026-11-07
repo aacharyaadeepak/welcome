@@ -1,16 +1,20 @@
-const RECIPIENT = 'aacharyaadeepak@gmail.com'
-const CC_RECIPIENT = 'uniyaldeepak831@gmail.com'
+const SENDER_ACCOUNT = 'aacharyaadeepak@gmail.com'
+const RECIPIENT = 'uniyaldeepak831@gmail.com'
 
 function doPost(event) {
   try {
     const request = JSON.parse(event.postData.contents)
     const booking = validateBooking(request)
 
-    GmailApp.sendEmail(RECIPIENT, `Booking request from ${booking.name}`, formatBooking(booking), {
-      cc: CC_RECIPIENT,
-      replyTo: booking.email,
-      name: 'Acharya Deepak',
-    })
+    if (Session.getEffectiveUser().getEmail().toLowerCase() !== SENDER_ACCOUNT) {
+      throw new Error(`Deploy this web app as ${SENDER_ACCOUNT}.`)
+    }
+
+    GmailApp.sendEmail(
+      RECIPIENT,
+      `Booking request from ${booking.name}`,
+      formatBooking(booking),
+    )
 
     return ContentService
       .createTextOutput(JSON.stringify({ message: 'Booking request sent.' }))
@@ -30,7 +34,6 @@ function validateBooking(request) {
 
   const limits = {
     name: 200,
-    email: 254,
     phone: 60,
     service: 200,
     mode: 120,
@@ -51,7 +54,6 @@ function validateBooking(request) {
 
   if (
     !booking.name ||
-    !/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(booking.email) ||
     !booking.phone ||
     !booking.service ||
     !booking.mode ||
@@ -68,7 +70,6 @@ function formatBooking(booking) {
     'A new booking request was submitted.',
     '',
     `Name: ${booking.name}`,
-    `Email: ${booking.email}`,
     `Phone / WhatsApp: ${booking.phone}`,
     `Service: ${booking.service}`,
     `Ritual mode: ${booking.mode}`,
