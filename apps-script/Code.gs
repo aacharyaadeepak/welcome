@@ -1,5 +1,5 @@
 const SENDER_ACCOUNT = 'aacharyaadeepak@gmail.com'
-const RECIPIENT = 'uniyaldeepak831@gmail.com'
+const RECIPIENTS = ['uniyaldeepak831@gmail.com', 'rkmrs.08@gmail.com']
 
 function doPost(event) {
   try {
@@ -11,7 +11,7 @@ function doPost(event) {
     }
 
     GmailApp.sendEmail(
-      RECIPIENT,
+      RECIPIENTS.join(','),
       `Booking request from ${booking.name}`,
       formatBooking(booking),
     )
