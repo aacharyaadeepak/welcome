@@ -300,6 +300,7 @@ function App() {
   const [customImages, setCustomImages] = useState<GalleryItem[]>([])
   const [activeArticle, setActiveArticle] = useState<(typeof articles)[number] | null>(null)
   const [notice, setNotice] = useState('')
+  const [isSubmittingBooking, setIsSubmittingBooking] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [isSearchOpen, setIsSearchOpen] = useState(false)
 
@@ -438,18 +439,54 @@ function App() {
     event.target.value = ''
   }
 
-  function submitBooking(event: FormEvent<HTMLFormElement>) {
+  async function submitBooking(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const formData = new FormData(event.currentTarget)
+    const form = event.currentTarget
+    const formData = new FormData(form)
     const name = String(formData.get('name') ?? '').trim()
+    const email = String(formData.get('email') ?? '').trim()
     const phone = String(formData.get('phone') ?? '').trim()
-    if (!name || !phone) {
-      setNotice('Please enter your name and WhatsApp number to prepare your booking request.')
+    if (!name || !email || !phone) {
+      setNotice('Please enter your name, email address, and WhatsApp number to submit your booking request.')
       return
     }
-    setNotice(
-      'Your request is ready. Add the business WhatsApp number to enable direct booking confirmation.',
-    )
+    const apiUrl = import.meta.env.VITE_BOOKING_API_URL
+    if (!apiUrl) {
+      setNotice('Booking email is not configured yet. Please contact us directly.')
+      return
+    }
+
+    setIsSubmittingBooking(true)
+    setNotice('')
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(Object.fromEntries(formData.entries())),
+      })
+      const result: unknown = await response.json().catch(() => null)
+      if (!response.ok) {
+        const errorMessage =
+          typeof result === 'object' &&
+          result !== null &&
+          'error' in result &&
+          typeof result.error === 'string'
+            ? result.error
+            : 'Your booking request could not be sent. Please try again later.'
+        throw new Error(errorMessage)
+      }
+
+      setNotice('Your booking request has been sent. We will be in touch soon.')
+      form.reset()
+    } catch (error) {
+      setNotice(
+        error instanceof Error
+          ? error.message
+          : 'Your booking request could not be sent. Please try again later.',
+      )
+    } finally {
+      setIsSubmittingBooking(false)
+    }
   }
 
   return (
@@ -636,7 +673,7 @@ function App() {
 
         <section id="blog" className="blog-section content-width section-space"><div className="center-heading"><span className="pill section-pill">▤ &nbsp;VEDIC WISDOM & RITUAL GUIDES</span><h2>Spiritual Blog & Sacred Insights from<br />Rishikesh</h2><p>In-depth articles connected to our ritual gallery—explaining the spiritual meaning of Pind Daan,<br /> Rudrabhishek, Vastu Puja, and Online Live Sankalp.</p></div><div className="article-grid">{articles.map((article) => <article key={article.title} className="article-card"><div className="article-image"><img src={article.image} alt="" /><span>{article.minutes}</span></div><div className="article-copy"><span className="eyebrow">{article.category}</span><h3>{article.title}</h3><p>{article.text}</p><div><button type="button" onClick={() => setActiveArticle(article)}>Read Full Article &nbsp; →</button><a href="#booking">{article.booking}</a></div></div></article>)}</div></section>
 
-        <section id="booking" className="booking-section"><div className="booking-inner content-width"><div className="booking-intro"><span className="pill gold-pill">♨ &nbsp;SACRED SANKALP BOOKING</span><h2>Book Your Online Ritual or Astrology Consultation</h2><p>All rituals are conducted online with live streaming and individualized Sankalp, or in-person at Saklani Vihaar, Dhalwala, Rishikesh. Fill in your details below to schedule your ceremony with <strong>Acharya Deepak.</strong></p><div className="booking-benefits"><div><span>⌖</span><p><b>Sacred Location</b><small>Saklani Vihaar, Dhalwala, Rishikesh</small></p></div><div><span>▣</span><p><b>100% Live Streaming & Sankalp</b><small>Join via WhatsApp Video, Zoom, or Google Meet with your family from anywhere in the world.</small></p></div><div><span>◎</span><p><b>3 Languages Spoken</b><small>Ritual explanation & Kundali guidance available in Hindi, Sanskrit & English.</small></p></div></div></div><form className="booking-form" onSubmit={submitBooking}><div className="form-heading"><div><h3>Schedule Your Puja or Kundali Reading</h3><small>Individualized Sankalp • Pure Vedic Mantras • Saklani Vihaar, Dhalwala, Rishikesh</small></div><span>♧</span></div><div className="form-grid"><label>Your Full Name *<input name="name" required placeholder="e.g. Rajesh Sharma & Family" /></label><label>Phone / WhatsApp Number *<input name="phone" required type="tel" placeholder="e.g. +91 98765 43210" /></label><label>Select Sacred Ritual / Service *<select name="service" defaultValue={bookingServices[2]}>{bookingServices.map((service) => <option key={service}>{service}</option>)}</select></label><label>Ritual Mode *<select name="mode" defaultValue="Online Live Stream (Individualized Sankalp)"><option>Online Live Stream (Individualized Sankalp)</option><option>In-Person in Rishikesh</option></select></label><label>Gotra & Nakshatra (Optional)<input name="gotra" placeholder="e.g. Kashyap Gotra" /></label><label>Preferred Date<input name="date" type="date" /></label><label>Preferred Language<select name="language"><option>Hindi & Sanskrit</option><option>English</option><option>Hindi</option></select></label><label className="full-field">Special Prayer / Birth Details (for Kundali or Sankalp)<textarea name="message" rows={3} placeholder="Share your prayer intention, or Date/Time/Place of Birth for Kundali reading..." /></label></div>{notice && <p className="booking-notice" role="status">{notice}</p>}<button type="submit" className="button button-primary submit-booking">♨ &nbsp; Confirm Sacred Sankalp & Booking Request</button></form></div></section>
+        <section id="booking" className="booking-section"><div className="booking-inner content-width"><div className="booking-intro"><span className="pill gold-pill">♨ &nbsp;SACRED SANKALP BOOKING</span><h2>Book Your Online Ritual or Astrology Consultation</h2><p>All rituals are conducted online with live streaming and individualized Sankalp, or in-person at Saklani Vihaar, Dhalwala, Rishikesh. Fill in your details below to schedule your ceremony with <strong>Acharya Deepak.</strong></p><div className="booking-benefits"><div><span>⌖</span><p><b>Sacred Location</b><small>Saklani Vihaar, Dhalwala, Rishikesh</small></p></div><div><span>▣</span><p><b>100% Live Streaming & Sankalp</b><small>Join via WhatsApp Video, Zoom, or Google Meet with your family from anywhere in the world.</small></p></div><div><span>◎</span><p><b>3 Languages Spoken</b><small>Ritual explanation & Kundali guidance available in Hindi, Sanskrit & English.</small></p></div></div></div><form className="booking-form" onSubmit={submitBooking}><div className="form-heading"><div><h3>Schedule Your Puja or Kundali Reading</h3><small>Individualized Sankalp • Pure Vedic Mantras • Saklani Vihaar, Dhalwala, Rishikesh</small></div><span>♧</span></div><div className="form-grid"><label>Your Full Name *<input name="name" required placeholder="e.g. Rajesh Sharma & Family" /></label><label>Email Address *<input name="email" required type="email" autoComplete="email" placeholder="e.g. name@example.com" /></label><label>Phone / WhatsApp Number *<input name="phone" required type="tel" placeholder="e.g. +91 98765 43210" /></label><label>Select Sacred Ritual / Service *<select name="service" defaultValue={bookingServices[2]}>{bookingServices.map((service) => <option key={service}>{service}</option>)}</select></label><label>Ritual Mode *<select name="mode" defaultValue="Online Live Stream (Individualized Sankalp)"><option>Online Live Stream (Individualized Sankalp)</option><option>In-Person in Rishikesh</option></select></label><label>Gotra & Nakshatra (Optional)<input name="gotra" placeholder="e.g. Kashyap Gotra" /></label><label>Preferred Date<input name="date" type="date" /></label><label>Preferred Language<select name="language"><option>Hindi & Sanskrit</option><option>English</option><option>Hindi</option></select></label><label className="full-field">Special Prayer / Birth Details (for Kundali or Sankalp)<textarea name="message" rows={3} placeholder="Share your prayer intention, or Date/Time/Place of Birth for Kundali reading..." /></label></div>{notice && <p className="booking-notice" role="status">{notice}</p>}<button type="submit" className="button button-primary submit-booking" disabled={isSubmittingBooking}>{isSubmittingBooking ? 'Sending Booking Request…' : '♨  Confirm Sacred Sankalp & Booking Request'}</button></form></div></section>
       </main>
       )}
 
