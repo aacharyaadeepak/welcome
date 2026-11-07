@@ -27,8 +27,14 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Check Worker types
-        run: npm run typecheck:worker
+      - name: Verify booking email endpoint
+        env:
+          VITE_BOOKING_API_URL: ${{ vars.BOOKING_API_URL }}
+        run: |
+          if [ -z "$VITE_BOOKING_API_URL" ]; then
+            echo "::error::BOOKING_API_URL is not set. Add the deployed Google Apps Script web app URL under repository Settings > Secrets and variables > Actions > Variables, then rerun the Pages workflow."
+            exit 1
+          fi
       - name: Build site
         env:
           VITE_BOOKING_API_URL: ${{ vars.BOOKING_API_URL }}

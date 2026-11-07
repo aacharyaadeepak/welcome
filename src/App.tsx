@@ -452,31 +452,25 @@ function App() {
     }
     const apiUrl = import.meta.env.VITE_BOOKING_API_URL
     if (!apiUrl) {
-      setNotice('Booking email is not configured yet. Please contact us directly.')
+      setNotice(
+        'Booking email is not configured on this site yet. The site administrator must add the Google Apps Script web app URL as the BOOKING_API_URL GitHub Actions variable and redeploy.',
+      )
       return
     }
 
     setIsSubmittingBooking(true)
     setNotice('')
     try {
-      const response = await fetch(apiUrl, {
+      await fetch(apiUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
         body: JSON.stringify(Object.fromEntries(formData.entries())),
       })
-      const result: unknown = await response.json().catch(() => null)
-      if (!response.ok) {
-        const errorMessage =
-          typeof result === 'object' &&
-          result !== null &&
-          'error' in result &&
-          typeof result.error === 'string'
-            ? result.error
-            : 'Your booking request could not be sent. Please try again later.'
-        throw new Error(errorMessage)
-      }
 
-      setNotice('Your booking request has been sent. We will be in touch soon.')
+      setNotice(
+        'Your request was submitted. Google does not allow this site to verify email delivery, so please contact us if you do not hear back.',
+      )
       form.reset()
     } catch (error) {
       setNotice(
