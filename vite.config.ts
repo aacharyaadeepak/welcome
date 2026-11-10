@@ -7,11 +7,13 @@ export default defineConfig({
   plugins: [
     react(),
     {
-      name: 'github-pages-gallery-route',
-      async closeBundle() {
-        const galleryDirectory = resolve('dist/gallery')
-        await mkdir(galleryDirectory, { recursive: true })
-        await copyFile(resolve('dist/index.html'), resolve(galleryDirectory, 'index.html'))
+      name: 'github-pages-static-routes',
+      async writeBundle() {
+        for (const route of ['gallery', 'pujas']) {
+          const routeDirectory = resolve('dist', route)
+          await mkdir(routeDirectory, { recursive: true })
+          await copyFile(resolve('dist/index.html'), resolve(routeDirectory, 'index.html'))
+        }
       },
     },
   ],
