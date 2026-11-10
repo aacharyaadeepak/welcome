@@ -456,8 +456,8 @@ function App() {
           <a href={sectionHref('home')} onClick={() => setIsMenuOpen(false)}>Home</a>
           <a href={sectionHref('about')} onClick={() => setIsMenuOpen(false)}>About me</a>
           <a href={sectionHref('services')} onClick={() => setIsMenuOpen(false)}>Pillars</a>
-          <a href={pujasHref} aria-current={isPujasPage ? 'page' : undefined} onClick={() => setIsMenuOpen(false)}>Featured Pujas</a>
           <a href={sectionHref('pitru')} onClick={() => setIsMenuOpen(false)}>Pind Daan</a>
+          <a href={pujasHref} aria-current={isPujasPage ? 'page' : undefined} onClick={() => setIsMenuOpen(false)}>Featured Pujas</a>
           <a href={galleryHref} aria-current={isGalleryPage ? 'page' : undefined} onClick={() => setIsMenuOpen(false)}>Sacred Gallery</a>
           <a href={sectionHref('blog')} onClick={() => setIsMenuOpen(false)}>Blogs</a>
           <a href={sectionHref('contact')} onClick={() => setIsMenuOpen(false)}>Contact</a>

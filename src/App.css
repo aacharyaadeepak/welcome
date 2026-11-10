@@ -268,10 +268,11 @@
 }
 
 .header-book {
-  min-width: 230px;
-  min-height: 60px;
+  min-width: 0;
+  min-height: 44px;
+  padding-inline: 18px;
   border-radius: 40px;
-  white-space: normal;
+  white-space: nowrap;
 }
 
 .hero-section {
@@ -1683,7 +1684,7 @@
   }
 
   .header-book {
-    min-width: 190px;
+    min-width: 0;
     font-size: 12px;
   }
 
