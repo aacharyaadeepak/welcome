@@ -107,7 +107,7 @@ const ceremonies = [
     highlight: 'Prayers for Prosperity & Abundance',
     summary: 'A devotional puja honoring Goddess Mahalaxmi',
     details:
-      'Invite blessings of prosperity, harmony, and well-being with a traditional Mahalaxmi Puja performed with Vedic mantras and a personalized family Sankalp.',
+      'Invite prosperity, harmony, and well-being through traditional Vedic mantras and a personalized family Sankalp.',
     image: `${basePath}media/gallery-deity-puja.jpeg`,
   },
   {
@@ -116,8 +116,8 @@ const ceremonies = [
     highlight: 'Including Kanyadaan & Saptapadi',
     summary: 'Complete Vedic marriage rituals with all traditional ceremonies',
     details:
-      'Experience a truly sacred Vedic Vivah conducted with pure Sanskrit mantras, explaining the spiritual meaning of Ganesh-Ambika Puja, Kanyadaan, Panigrahana, Agni Parikrama, and the seven sacred vows of Saptapadi.',
-    image: `${basePath}media/gallery-vedic-ceremony.jpeg`,
+      'Celebrate your wedding with Sanskrit mantras and traditional rituals, including Kanyadaan, Panigrahana, Agni Parikrama, and the seven vows of Saptapadi.',
+    image: `${basePath}media/wedding-ceremony.png`,
   },
   {
     title: 'Griha Pravesh',
@@ -125,8 +125,8 @@ const ceremonies = [
     highlight: 'Vastu Shanti & Navagraha Havan Included',
     summary: 'House-warming rituals with Vastu Puja for prosperity',
     details:
-      'Invite positive cosmic vibrations, Goddess Lakshmi’s abundance, and Vastu Purusha blessings into your new residence with Dwar Puja, Kalash Sthapana, Vastu Mandal Puja, and sacred Havan.',
-    image: `${basePath}media/gallery-puja-altar.jpeg`,
+      'Welcome prosperity into your new home with Dwar Puja, Kalash Sthapana, Vastu worship, and a sacred Havan.',
+    image: `${basePath}media/griha-pravesh.png`,
   },
   {
     title: 'Rudrabhishek Puja',
@@ -134,8 +134,8 @@ const ceremonies = [
     highlight: 'Mahamrityunjaya Path Included',
     summary: 'Powerful Shiva rituals for peace and protection',
     details:
-      'Sacred Rudrabhishek of Lord Shiva using Panchamrit, Ganga Jal from Rishikesh, Bilva leaves, and Bhasma amidst continuous chanting of Sri Rudram and the life-protecting Mahamrityunjaya Mantra.',
-    image: `${basePath}media/gallery-puja-ritual.jpeg`,
+      'Worship Lord Shiva with sacred offerings, Ganga Jal, Bilva leaves, and chants from Sri Rudram and the Mahamrityunjaya Mantra.',
+    image: `${basePath}media/rudrabhishek-puja.png`,
   },
   {
     title: 'Satyanarayan Katha',
@@ -143,8 +143,8 @@ const ceremonies = [
     highlight: 'Family Prosperity Blessings',
     summary: 'Traditional Vishnu Katha and puja for family blessings',
     details:
-      'Performed on Purnima, Ekadashi, or special family occasions to invoke Lord Narayana’s grace for harmony, health, career success, and fulfillment of auspicious family wishes.',
-    image: `${basePath}media/gallery-puja-altar.jpeg`,
+      'Gather with family for the traditional Katha and puja, seeking Lord Narayana’s blessings for harmony, health, and prosperity.',
+    image: `${basePath}media/satyanarayan-puja.png`,
   },
   {
     title: 'Navagraha Puja',
@@ -152,8 +152,8 @@ const ceremonies = [
     highlight: 'Removes Planetary Doshas',
     summary: 'Planetary peace and balance rituals for harmony',
     details:
-      'Pacify unfavourable planetary transits (Rahu, Ketu, Shani, Mangal) and strengthen benefic planets in your Janam Kundli through Vedic Navagraha Mandal worship, Beej Mantra Jaap, and Samidha Havan.',
-    image: `${basePath}media/gallery-deity-puja.jpeg`,
+      'Seek balance and planetary peace through Navagraha worship, Beej Mantra Jaap, and Samidha Havan.',
+    image: `${basePath}media/navagraha-puja.png`,
   },
   {
     title: 'Mundan Sanskaar',
@@ -161,8 +161,8 @@ const ceremonies = [
     highlight: 'Blessing for Healthy Growth',
     summary: 'Traditional first haircut ceremony for children',
     details:
-      'One of the 16 sacred Shodasha Sanskars (Chudakarana) performed to bless the child with strong immunity, sharp intellect (Tejas), longevity, and divine protection.',
-    image: `${basePath}media/gallery-acharya-portrait.jpeg`,
+      'Mark your child’s first haircut with this sacred sanskaar, seeking blessings for health, wisdom, longevity, and protection.',
+    image: `${basePath}media/mundan-sanskaar.png`,
   },
   {
     title: 'Pind Daan Puja',
@@ -170,8 +170,8 @@ const ceremonies = [
     highlight: 'Tarpan, Shraddh & Pitru Shanti',
     summary: 'Sacred ancestral peace rituals in Rishikesh',
     details:
-      'A sacred bridge of gratitude, love, and prayers that connects us to our ancestors. Conducted with complete Vidhi-Vidhan on the holy banks of Maa Ganga.',
-    image: `${basePath}media/gallery-acharya-rishikesh.jpeg`,
+      'Honor your ancestors with traditional Pind Daan, Tarpan, and prayers performed with care on the sacred banks of Maa Ganga.',
+    image: `${basePath}media/pind-daan-puja.jpeg`,
   },
   {
     title: 'Baglamukhi Puja',
@@ -179,8 +179,8 @@ const ceremonies = [
     highlight: 'Protection & Obstacle Resolution',
     summary: 'A Vedic ritual invoking Goddess Baglamukhi for protection and strength',
     details:
-      'Baglamukhi Puja is a powerful Vedic ritual dedicated to Goddess Baglamukhi, who represents the cosmic power of stunning and immobilising negative forces. Performing this puja helps individuals overcome enemies, resolve legal battles, and protect themselves from black magic, evil eyes, and hidden adversaries. It acts as a strong shield against financial losses and brings stability, prosperity, and success in business or career. By invoking the Goddess, devotees can clear administrative obstacles, silence malicious gossip, and gain inner strength, mental clarity, and overall peace of mind.',
-    image: `${basePath}media/gallery-havan.jpeg`,
+      'Invoke Goddess Baglamukhi’s protection, overcome obstacles, and cultivate strength and clarity. This Vedic puja seeks blessings for stability, success, and peace while helping devotees face difficult circumstances with confidence.',
+    image: `${basePath}media/baglamukhi-puja.jpeg`,
   },
 ]
 
@@ -386,7 +386,12 @@ function App() {
           <h3>{ceremony.title}</h3>
           <strong>{ceremony.summary}</strong>
           <p>{ceremony.details}</p>
-          <a href={whatsappHref(`Namaste, I would like to enquire about ${ceremony.title}. Please share details about the puja, available dates, and booking process.`)}>Enquire on WhatsApp &nbsp; →</a>
+          <a href={whatsappHref(`Namaste, I would like to enquire about ${ceremony.title}. Please share details about the puja, available dates, and booking process.`)}>
+            <svg className="whatsapp-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 2a9.9 9.9 0 0 0-8.5 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2Zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.8.8.8-2.7-.2-.3A8 8 0 1 1 12 20Zm4.4-5.9c-.2-.1-1.4-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8.9-.3.2-.5.1a6.6 6.6 0 0 1-2-1.2 7.3 7.3 0 0 1-1.4-1.7c-.1-.2 0-.3.1-.4l.4-.5.3-.4c.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.2-.9.9-.9 2.1s.9 2.4 1 2.6c.1.2 1.8 2.8 4.4 3.9.6.3 1.1.4 1.5.5.6.2 1.2.1 1.6.1.5-.1 1.4-.6 1.6-1.2s.2-1.1.2-1.2-.2-.3-.4-.4Z" />
+            </svg>
+            <span>Enquire</span>
+          </a>
         </div>
       </article>
     )
@@ -581,7 +586,7 @@ function App() {
             </div>
             <div className="hero-art">
               <div className="hero-arch">
-                <img className="hero-photo" src={`${basePath}media/acharya-deepak-ritual.jpeg`} alt="Acharya Deepak performing a Vedic ritual" />
+                <img className="hero-photo" src={`${basePath}media/welcome-hero.png`} alt="Acharya Deepak seated at a decorated puja altar" />
                 <div className="arch-caption"><span>✧ &nbsp;PURE विधि-विधान & VEDIC MANTRAS</span><strong>Every Puja Conducted with<br />Personalized Family Sankalp</strong></div>
               </div>
               <div className="floating-sankalp"><span className="mini-icon">♨</span><span><strong>Individual Sankalp</strong><small>Name, Gotra & Nakshatra</small></span></div>

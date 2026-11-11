@@ -436,7 +436,7 @@
   position: absolute;
   inset: 0;
   object-fit: cover;
-  object-position: center 40%;
+  object-position: left center;
 }
 
 .arch-caption {
@@ -1070,8 +1070,10 @@
 .ceremony-copy > a {
   margin-top: auto;
   min-height: 44px;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   border: 1px solid #e8c77b;
   border-radius: 13px;
   color: var(--maroon);
@@ -1079,6 +1081,12 @@
   text-decoration: none;
   font-size: 13px;
   font-weight: 700;
+}
+
+.whatsapp-icon {
+  width: 18px;
+  height: 18px;
+  fill: #25d366;
 }
 
 .pitru-section {
